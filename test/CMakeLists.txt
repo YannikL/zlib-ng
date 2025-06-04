@@ -1,7 +1,7 @@
 macro(configure_test_executable target)
     target_include_directories(${target} PRIVATE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
     set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-    if(NOT WITH_GZFILEOP)
+    if(NOT ZLIBNG_WITH_GZFILEOP)
         target_compile_definitions(${target} PRIVATE -DWITH_GZFILEOP)
         target_sources(${target} PRIVATE ${ZLIB_GZFILE_PRIVATE_HDRS} ${ZLIB_GZFILE_SRCS})
     endif()
@@ -35,7 +35,7 @@ configure_test_executable(minideflate)
 target_link_libraries(minideflate zlib)
 set(MINIDEFLATE_COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:minideflate>)
 
-if(INSTALL_UTILS)
+if(ZLIBNG_INSTALL_UTILS)
     install(TARGETS minigzip minideflate
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
@@ -86,24 +86,24 @@ if(NOT BASEARCH_WASM32_FOUND)
     include(cmake/test-tools.cmake)
 endif()
 
-if(WITH_FUZZERS)
+if(ZLIBNG_WITH_FUZZERS)
     add_subdirectory(fuzz)
 endif()
 
-if(WITH_GTEST OR WITH_BENCHMARKS)
+if(ZLIBNG_WITH_GTEST OR ZLIBNG_WITH_BENCHMARKS)
     if(CMAKE_VERSION VERSION_LESS 3.12)
         message(WARNING "Minimum cmake version of 3.12 not met for Google benchmark!")
-        set(WITH_BENCHMARKS OFF)
-        set(WITH_BENCHMARKS OFF PARENT_SCOPE)
+        set(ZLIBNG_WITH_BENCHMARKS OFF)
+        set(ZLIBNG_WITH_BENCHMARKS OFF PARENT_SCOPE)
     endif()
     enable_language(CXX)
 endif()
 
-if(WITH_BENCHMARKS)
+if(ZLIBNG_WITH_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
 
-if(WITH_GTEST)
+if(ZLIBNG_WITH_GTEST)
     # Google test requires at least C++11
     if(NOT DEFINED CMAKE_CXX_STANDARD)
         set(CMAKE_CXX_STANDARD 11)
@@ -182,7 +182,7 @@ if(WITH_GTEST)
             test_small_window.cc
             )
 
-        if(WITH_GZFILEOP)
+        if(ZLIBNG_WITH_GZFILEOP)
             list(APPEND TEST_SRCS test_gzio.cc)
         endif()
 

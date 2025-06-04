@@ -75,24 +75,24 @@ endif()
 #
 # Options parsing
 #
-option(WITH_GZFILEOP "Compile with support for gzFile related functions" ON)
+option(ZLIBNG_WITH_GZFILEOP "Compile with support for gzFile related functions" ON)
 option(ZLIB_COMPAT "Compile with zlib compatible API" OFF)
 option(ZLIB_ENABLE_TESTS "Build test binaries" ON)
 option(ZLIBNG_ENABLE_TESTS "Test zlib-ng specific API" ON)
-option(WITH_GTEST "Build gtest_zlib" ON)
-option(WITH_FUZZERS "Build test/fuzz" OFF)
-option(WITH_BENCHMARKS "Build test/benchmarks" OFF)
-option(WITH_BENCHMARK_APPS "Build application benchmarks" OFF)
-option(WITH_OPTIM "Build with optimisation" ON)
-option(WITH_REDUCED_MEM "Reduced memory usage for special cases (reduces performance)" OFF)
-option(WITH_NEW_STRATEGIES "Use new strategies" ON)
-option(WITH_NATIVE_INSTRUCTIONS
+option(ZLIBNG_WITH_GTEST "Build gtest_zlib" ON)
+option(ZLIBNG_WITH_FUZZERS "Build test/fuzz" OFF)
+option(ZLIBNG_WITH_BENCHMARKS "Build test/benchmarks" OFF)
+option(ZLIBNG_WITH_BENCHMARK_APPS "Build application benchmarks" OFF)
+option(ZLIBNG_WITH_OPTIM "Build with optimisation" ON)
+option(ZLIBNG_WITH_REDUCED_MEM "Reduced memory usage for special cases (reduces performance)" OFF)
+option(ZLIBNG_WITH_NEW_STRATEGIES "Use new strategies" ON)
+option(ZLIBNG_WITH_NATIVE_INSTRUCTIONS
     "Instruct the compiler to use the full instruction set on this host (gcc/clang -march=native)" OFF)
-option(WITH_RUNTIME_CPU_DETECTION "Build with runtime detection of CPU architecture" ON)
-option(WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings" OFF)
-option(WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
-option(WITH_INFLATE_STRICT "Build with strict inflate distance checking" OFF)
-option(WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances" OFF)
+option(ZLIBNG_WITH_RUNTIME_CPU_DETECTION "Build with runtime detection of CPU architecture" ON)
+option(ZLIBNG_WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings" OFF)
+option(ZLIBNG_WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
+option(ZLIBNG_WITH_INFLATE_STRICT "Build with strict inflate distance checking" OFF)
+option(ZLIBNG_WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances" OFF)
 
 set(ZLIB_SYMBOL_PREFIX "" CACHE STRING "Give this prefix to all publicly exported symbols.
 Useful when embedding into a larger library.
@@ -127,11 +127,11 @@ elseif(BASEARCH_X86_FOUND)
     cmake_dependent_option(WITH_VPCLMULQDQ "Build with VPCLMULQDQ" ON "WITH_PCLMULQDQ;WITH_AVX512" OFF)
 endif()
 
-option(INSTALL_UTILS "Copy minigzip and minideflate during install" OFF)
+option(ZLIBNG_INSTALL_UTILS "Copy minigzip and minideflate during install" OFF)
 
 mark_as_advanced(FORCE
     ZLIB_SYMBOL_PREFIX
-    WITH_REDUCED_MEM
+    ZLIBNG_WITH_REDUCED_MEM
     WITH_ACLE WITH_NEON
     WITH_ARMV6
     WITH_DFLTCC_DEFLATE
@@ -144,14 +144,14 @@ mark_as_advanced(FORCE
     WITH_POWER8
     WITH_POWER9
     WITH_RVV
-    WITH_INFLATE_STRICT
-    WITH_INFLATE_ALLOW_INVALID_DIST
-    INSTALL_UTILS
+    ZLIBNG_WITH_INFLATE_STRICT
+    ZLIBNG_WITH_INFLATE_ALLOW_INVALID_DIST
+    ZLIBNG_INSTALL_UTILS
     )
 
 if(ZLIB_COMPAT)
     add_definitions(-DZLIB_COMPAT)
-    set(WITH_GZFILEOP ON)
+    set(ZLIBNG_WITH_GZFILEOP ON)
     set(SUFFIX "")
     set(ZLIB_FULL_VERSION ${ZLIB_HEADER_VERSION}.zlib-ng)
     set(EXPORT_NAME ZLIB)
@@ -161,7 +161,7 @@ else()
     set(EXPORT_NAME zlib-ng)
 endif()
 
-if(WITH_GZFILEOP)
+if(ZLIBNG_WITH_GZFILEOP)
     add_definitions(-DWITH_GZFILEOP)
 endif()
 
@@ -214,7 +214,7 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(FNO_LTO_AVAILABLE)
         set(ZNOLTOFLAG "-fno-lto")
     endif()
-    if(NOT WITH_NATIVE_INSTRUCTIONS)
+    if(NOT ZLIBNG_WITH_NATIVE_INSTRUCTIONS)
         if(BASEARCH_ARM_FOUND)
             if("${ARCH}" MATCHES "arm" AND NOT CMAKE_C_FLAGS MATCHES "-mfloat-abi")
                 # Auto-detect support for ARM floating point ABI
@@ -262,9 +262,9 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 endif()
 
 # Set native march/mcpu
-if(WITH_NATIVE_INSTRUCTIONS)
+if(ZLIBNG_WITH_NATIVE_INSTRUCTIONS)
     if(NATIVE_ARCH_OVERRIDE)
-        message(STATUS "WARNING: WITH_NATIVE_INSTRUCTIONS enabled, but running with NATIVE_ARCH_OVERRIDE: ${NATIVE_ARCH_OVERRIDE}")
+        message(STATUS "WARNING: ZLIBNG_WITH_NATIVE_INSTRUCTIONS enabled, but running with NATIVE_ARCH_OVERRIDE: ${NATIVE_ARCH_OVERRIDE}")
         set(NATIVEFLAG "${NATIVE_ARCH_OVERRIDE}")
     else()
         if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
@@ -288,15 +288,15 @@ if(WITH_NATIVE_INSTRUCTIONS)
             separate_arguments(NATIVEOPTIONS UNIX_COMMAND "${NATIVEFLAG}")
         endif()
         add_compile_options(${NATIVEOPTIONS})
-        set(WITH_RUNTIME_CPU_DETECTION OFF)
+        set(ZLIBNG_WITH_RUNTIME_CPU_DETECTION OFF)
     else()
-        message(STATUS "Ignoring WITH_NATIVE_INSTRUCTIONS; not implemented yet on this configuration")
-        set(WITH_NATIVE_INSTRUCTIONS OFF)
+        message(STATUS "Ignoring ZLIBNG_WITH_NATIVE_INSTRUCTIONS; not implemented yet on this configuration")
+        set(ZLIBNG_WITH_NATIVE_INSTRUCTIONS OFF)
     endif()
 endif()
 
 # Compile without functable or CPU detection
-if(NOT WITH_RUNTIME_CPU_DETECTION)
+if(NOT ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
     if(MSVC AND BASEARCH_X86_FOUND)
         message(STATUS "WARNING: Microsoft Visual Studio does not support compile time detection of CPU features for \"/arch\" before \"AVX\"")
         # Workaround for MSVC. By default MSVC does not define the __SSE*__ macros.
@@ -325,8 +325,8 @@ if(NOT WITH_RUNTIME_CPU_DETECTION)
     add_definitions(-DDISABLE_RUNTIME_CPU_DETECTION)
 endif()
 
-# Force disable LTO if WITH_NATIVE_INSTRUCTIONS is not active
-if(NOT WITH_NATIVE_INSTRUCTIONS)
+# Force disable LTO if ZLIBNG_WITH_NATIVE_INSTRUCTIONS is not active
+if(NOT ZLIBNG_WITH_NATIVE_INSTRUCTIONS)
     set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
     foreach(_cfg_name IN LISTS CMAKE_CONFIGURATION_TYPES)
         string(TOUPPER "${_cfg_name}" _cfg_name_uc)
@@ -335,19 +335,19 @@ if(NOT WITH_NATIVE_INSTRUCTIONS)
 endif()
 
 # Apply warning compiler flags
-if(WITH_MAINTAINER_WARNINGS)
+if(ZLIBNG_WITH_MAINTAINER_WARNINGS)
     add_compile_options(${WARNFLAGS} ${WARNFLAGS_MAINTAINER} ${WARNFLAGS_DISABLE})
 else()
     add_compile_options(${WARNFLAGS} ${WARNFLAGS_DISABLE})
 endif()
 
 # Set code coverage compiler flags
-if(WITH_CODE_COVERAGE)
+if(ZLIBNG_WITH_CODE_COVERAGE)
     add_code_coverage()
 endif()
 
 # Replace optimization level 3 added by default with level 2
-if(NOT WITH_CODE_COVERAGE AND NOT MSVC AND NOT CMAKE_C_FLAGS MATCHES "([\\/\\-]O)3")
+if(NOT ZLIBNG_WITH_CODE_COVERAGE AND NOT MSVC AND NOT CMAKE_C_FLAGS MATCHES "([\\/\\-]O)3")
     string(REGEX REPLACE "([\\/\\-]O)3" "\\12"
         CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 endif()
@@ -587,30 +587,30 @@ endif()
 #
 # Enable deflate_quick at level 1
 #
-if(NOT WITH_NEW_STRATEGIES)
+if(NOT ZLIBNG_WITH_NEW_STRATEGIES)
     add_definitions(-DNO_QUICK_STRATEGY)
 endif()
 #
 # Enable deflate_medium at level 4-6
 #
-if(NOT WITH_NEW_STRATEGIES)
+if(NOT ZLIBNG_WITH_NEW_STRATEGIES)
     add_definitions(-DNO_MEDIUM_STRATEGY)
 endif()
 #
 # Enable inflate compilation options
 #
-if(WITH_INFLATE_STRICT)
+if(ZLIBNG_WITH_INFLATE_STRICT)
     add_definitions(-DINFLATE_STRICT)
     message(STATUS "Inflate strict distance checking enabled")
 endif()
-if(WITH_INFLATE_ALLOW_INVALID_DIST)
+if(ZLIBNG_WITH_INFLATE_ALLOW_INVALID_DIST)
     add_definitions(-DINFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR)
     message(STATUS "Inflate zero data for invalid distances enabled")
 endif()
 #
 # Enable reduced memory configuration
 #
-if(WITH_REDUCED_MEM)
+if(ZLIBNG_WITH_REDUCED_MEM)
     add_definitions(-DHASH_SIZE=32768u -DGZBUFSIZE=8192 -DNO_LIT_MEM)
     message(STATUS "Configured for reduced memory environment")
 endif()
@@ -638,7 +638,7 @@ else()
     message(STATUS "No optimized architecture: using ${ARCHDIR}")
 endif()
 
-if(WITH_OPTIM)
+if(ZLIBNG_WITH_OPTIM)
     if(BASEARCH_ARM_FOUND)
         add_definitions(-DARM_FEATURES)
         if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -706,7 +706,7 @@ if(WITH_OPTIM)
             endif()
         endif()
         list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/arm_functions.h)
-        if(WITH_RUNTIME_CPU_DETECTION)
+        if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
             list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/arm_features.h)
             list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/arm_features.c)
         endif()
@@ -782,7 +782,7 @@ if(WITH_OPTIM)
         endif()
         if(HAVE_VMX OR HAVE_POWER8_INTRIN OR HAVE_POWER9_INTRIN)
             list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/power_functions.h)
-            if(WITH_RUNTIME_CPU_DETECTION)
+            if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
                 list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/power_features.h)
                 list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/power_features.c)
             endif()
@@ -835,14 +835,14 @@ if(WITH_OPTIM)
                 add_definitions(-DRISCV_FEATURES)
                 add_definitions(-DRISCV_RVV)
                 list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/riscv_functions.h)
-                if(WITH_RUNTIME_CPU_DETECTION)
+                if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
                     list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/riscv_features.h)
                     list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/riscv_features.c)
                 endif()
                 # FIXME: we will not set compile flags for riscv_features.c when
                 # the kernels update hwcap or hwprobe for riscv
                 set(RVV_SRCS ${ARCHDIR}/adler32_rvv.c ${ARCHDIR}/chunkset_rvv.c ${ARCHDIR}/compare256_rvv.c ${ARCHDIR}/slide_hash_rvv.c)
-                if(WITH_RUNTIME_CPU_DETECTION)
+                if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
                     list(APPEND RVV_SRCS ${ARCHDIR}/riscv_features.c)
                 endif()
                 list(APPEND ZLIB_ARCH_SRCS ${RVV_SRCS})
@@ -856,7 +856,7 @@ if(WITH_OPTIM)
         if(HAVE_S390_INTRIN)
             add_definitions(-DS390_FEATURES)
             list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/s390_functions.h)
-            if(WITH_RUNTIME_CPU_DETECTION)
+            if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
                 list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/s390_features.h)
                 list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/s390_features.c)
             endif()
@@ -883,7 +883,7 @@ if(WITH_OPTIM)
     elseif(BASEARCH_X86_FOUND)
         add_definitions(-DX86_FEATURES)
         list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/x86_functions.h)
-        if(WITH_RUNTIME_CPU_DETECTION)
+        if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
             list(APPEND ZLIB_ARCH_HDRS ${ARCHDIR}/x86_features.h)
             list(APPEND ZLIB_ARCH_SRCS ${ARCHDIR}/x86_features.c)
         endif()
@@ -893,7 +893,7 @@ if(WITH_OPTIM)
         check_xsave_intrinsics()
         if(HAVE_XSAVE_INTRIN)
             add_feature_info(XSAVE 1 "Support XSAVE intrinsics using \"${XSAVEFLAG}\"")
-            if(WITH_RUNTIME_CPU_DETECTION)
+            if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
                 set_property(SOURCE ${ARCHDIR}/x86_features.c PROPERTY COMPILE_FLAGS "${XSAVEFLAG}")
             endif()
             if(NOT (CMAKE_C_COMPILER_ID MATCHES "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_LESS 8.2))
@@ -1138,7 +1138,7 @@ set(ZLIB_SRCS
     zutil.c
 )
 
-if(WITH_RUNTIME_CPU_DETECTION)
+if(ZLIBNG_WITH_RUNTIME_CPU_DETECTION)
     list(APPEND ZLIB_PRIVATE_HDRS cpu_features.h)
     list(APPEND ZLIB_SRCS cpu_features.c)
 endif()
@@ -1153,7 +1153,7 @@ set(ZLIB_GZFILE_SRCS
 )
 
 set(ZLIB_ALL_SRCS ${ZLIB_SRCS} ${ZLIB_ARCH_HDRS} ${ZLIB_ARCH_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
-if(WITH_GZFILEOP)
+if(ZLIBNG_WITH_GZFILEOP)
     list(APPEND ZLIB_ALL_SRCS ${ZLIB_GZFILE_PRIVATE_HDRS} ${ZLIB_GZFILE_SRCS})
 endif()
 
@@ -1279,7 +1279,7 @@ else()
 endif()
 
 set(ZLIB_PC ${CMAKE_CURRENT_BINARY_DIR}/zlib${SUFFIX}.pc)
-if(WITH_GZFILEOP)
+if(ZLIBNG_WITH_GZFILEOP)
     set(PKG_CONFIG_CFLAGS "-DWITH_GZFILEOP")
 endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein
@@ -1359,34 +1359,34 @@ if(ZLIB_ENABLE_TESTS)
             set(ZLIBNG_ENABLE_TESTS OFF)
         endif()
 
-        if(WITH_BENCHMARKS OR WITH_BENCHMARK_APPS)
+        if(ZLIBNG_WITH_BENCHMARKS OR ZLIBNG_WITH_BENCHMARK_APPS)
             message(STATUS "Disabling benchmarks because shared libraries are enabled")
-            set(WITH_BENCHMARKS OFF)
-            set(WITH_BENCHMARK_APPS OFF)
+            set(ZLIBNG_WITH_BENCHMARKS OFF)
+            set(ZLIBNG_WITH_BENCHMARK_APPS OFF)
         endif()
     endif()
 
     add_subdirectory(test)
 endif()
 
-add_feature_info(WITH_GZFILEOP WITH_GZFILEOP "Compile with support for gzFile related functions")
+add_feature_info(ZLIBNG_WITH_GZFILEOP ZLIBNG_WITH_GZFILEOP "Compile with support for gzFile related functions")
 add_feature_info(ZLIB_COMPAT ZLIB_COMPAT "Compile with zlib compatible API")
 add_feature_info(ZLIB_ENABLE_TESTS ZLIB_ENABLE_TESTS "Build test binaries")
 add_feature_info(ZLIBNG_ENABLE_TESTS ZLIBNG_ENABLE_TESTS "Test zlib-ng specific API")
 add_feature_info(WITH_SANITIZER WITH_SANITIZER "Enable sanitizer support")
-add_feature_info(WITH_GTEST WITH_GTEST "Build gtest_zlib")
-add_feature_info(WITH_FUZZERS WITH_FUZZERS "Build test/fuzz")
-add_feature_info(WITH_BENCHMARKS WITH_BENCHMARKS "Build test/benchmarks")
-add_feature_info(WITH_BENCHMARK_APPS WITH_BENCHMARK_APPS "Build application benchmarks")
-add_feature_info(WITH_OPTIM WITH_OPTIM "Build with optimisation")
-add_feature_info(WITH_NEW_STRATEGIES WITH_NEW_STRATEGIES "Use new strategies")
-add_feature_info(WITH_NATIVE_INSTRUCTIONS WITH_NATIVE_INSTRUCTIONS
+add_feature_info(ZLIBNG_WITH_GTEST ZLIBNG_WITH_GTEST "Build gtest_zlib")
+add_feature_info(ZLIBNG_WITH_FUZZERS ZLIBNG_WITH_FUZZERS "Build test/fuzz")
+add_feature_info(ZLIBNG_WITH_BENCHMARKS ZLIBNG_WITH_BENCHMARKS "Build test/benchmarks")
+add_feature_info(ZLIBNG_WITH_BENCHMARK_APPS ZLIBNG_WITH_BENCHMARK_APPS "Build application benchmarks")
+add_feature_info(ZLIBNG_WITH_OPTIM ZLIBNG_WITH_OPTIM "Build with optimisation")
+add_feature_info(ZLIBNG_WITH_NEW_STRATEGIES ZLIBNG_WITH_NEW_STRATEGIES "Use new strategies")
+add_feature_info(ZLIBNG_WITH_NATIVE_INSTRUCTIONS ZLIBNG_WITH_NATIVE_INSTRUCTIONS
     "Instruct the compiler to use the full instruction set on this host (gcc/clang -march=native)")
-add_feature_info(WITH_RUNTIME_CPU_DETECTION WITH_RUNTIME_CPU_DETECTION "Build with runtime CPU detection")
-add_feature_info(WITH_MAINTAINER_WARNINGS WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings")
-add_feature_info(WITH_CODE_COVERAGE WITH_CODE_COVERAGE "Enable code coverage reporting")
-add_feature_info(WITH_INFLATE_STRICT WITH_INFLATE_STRICT "Build with strict inflate distance checking")
-add_feature_info(WITH_INFLATE_ALLOW_INVALID_DIST WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances")
+add_feature_info(ZLIBNG_WITH_RUNTIME_CPU_DETECTION ZLIBNG_WITH_RUNTIME_CPU_DETECTION "Build with runtime CPU detection")
+add_feature_info(ZLIBNG_WITH_MAINTAINER_WARNINGS ZLIBNG_WITH_MAINTAINER_WARNINGS "Build with project maintainer warnings")
+add_feature_info(ZLIBNG_WITH_CODE_COVERAGE ZLIBNG_WITH_CODE_COVERAGE "Enable code coverage reporting")
+add_feature_info(ZLIBNG_WITH_INFLATE_STRICT ZLIBNG_WITH_INFLATE_STRICT "Build with strict inflate distance checking")
+add_feature_info(ZLIBNG_WITH_INFLATE_ALLOW_INVALID_DIST ZLIBNG_WITH_INFLATE_ALLOW_INVALID_DIST "Build with zero fill for inflate invalid distances")
 
 if(BASEARCH_ARM_FOUND)
     add_feature_info(WITH_ACLE WITH_ACLE "Build with ACLE")
@@ -1413,7 +1413,7 @@ elseif(BASEARCH_X86_FOUND)
     add_feature_info(WITH_VPCLMULQDQ WITH_VPCLMULQDQ "Build with VPCLMULQDQ")
 endif()
 
-add_feature_info(INSTALL_UTILS INSTALL_UTILS "Copy minigzip and minideflate during install")
+add_feature_info(ZLIBNG_INSTALL_UTILS ZLIBNG_INSTALL_UTILS "Copy minigzip and minideflate during install")
 
 FEATURE_SUMMARY(WHAT ALL INCLUDE_QUIET_PACKAGES)
 

@@ -20,7 +20,7 @@ set(FUZZERS
     fuzzer_example_dict
     )
 
-if(WITH_GZFILEOP)
+if(ZLIBNG_WITH_GZFILEOP)
     list(APPEND FUZZERS fuzzer_minigzip)
 endif()
 

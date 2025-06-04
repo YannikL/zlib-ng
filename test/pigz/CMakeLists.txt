@@ -10,7 +10,7 @@
 #  https://github.com/zlib-ng/pigzbench/tree/master/pigz/win
 
 # Optional Variables
-#   WITH_CODE_COVERAGE  - Enable code coverage reporting
+#   ZLIBNG_WITH_CODE_COVERAGE  - Enable code coverage reporting
 #   WITH_THREADS        - Enable threading support
 #   PIGZ_ENABLE_TESTS   - Enable adding unit tests
 #   PIGZ_VERSION        - Set the version of pigz to build
@@ -26,7 +26,7 @@ include(FetchContent)
 
 include(../../cmake/detect-coverage.cmake)
 
-option(WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
+option(ZLIBNG_WITH_CODE_COVERAGE "Enable code coverage reporting" OFF)
 option(WITH_THREADS "Enable threading support" ON)
 option(PIGZ_ENABLE_TESTS "Build unit tests" ON)
 option(PIGZ_VERSION "Set the version of pigz to build" "")
@@ -34,7 +34,7 @@ option(PIGZ_VERSION "Set the version of pigz to build" "")
 project(pigz LANGUAGES C)
 
 # Set code coverage compiler flags
-if(WITH_CODE_COVERAGE)
+if(ZLIBNG_WITH_CODE_COVERAGE)
     add_code_coverage()
 endif()
 
@@ -204,7 +204,7 @@ if(PIGZ_ENABLE_TESTS)
     add_test(NAME GH-979 COMMAND ${GH979_COMMAND})
 endif()
 
-add_feature_info(WITH_CODE_COVERAGE WITH_CODE_COVERAGE "Enable code coverage reporting")
+add_feature_info(ZLIBNG_WITH_CODE_COVERAGE ZLIBNG_WITH_CODE_COVERAGE "Enable code coverage reporting")
 add_feature_info(WITH_THREADS WITH_THREADS "Enable threading support")
 add_feature_info(PIGZ_ENABLE_TESTS PIGZ_ENABLE_TESTS "Build unit tests")
 

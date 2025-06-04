@@ -65,7 +65,7 @@ endif()
 add_test(NAME benchmark_zlib
     COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:benchmark_zlib>)
 
-if(WITH_BENCHMARK_APPS)
+if(ZLIBNG_WITH_BENCHMARK_APPS)
     option(BUILD_ALT_BENCH "Link against alternative zlib implementation" OFF)
 
     # Search for libpng package
